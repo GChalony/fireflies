@@ -67,7 +67,6 @@ class ControlPanel(tk.Frame):
         led_clock_speed = MyScale(self, from_=0, to=10, label="LED clock speed",
                                   command=controller.handler("led_clock_speed"), variable=controller.led_clock_speed)
 
-
         clock_speed.pack(fill=tk.X, expand=True, padx=5)
         number_flies.pack(fill=tk.X, expand=True, padx=5)
         nudge_on.pack(fill=tk.X, expand=True, padx=5)

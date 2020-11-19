@@ -89,3 +89,40 @@ class Swarm:
 
     def update_leds(self):
         self.leds_clocks = (self.leds_clocks + self.leds_on * self.leds_clock_speed) % 1
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    res = []
+
+    for nudge in [0.001, 0.005, 0.01, 0.05, 0.1, 0.3, 0.5]:
+        swarm = Swarm(
+            height=600,
+            width=1000,
+            number=300,
+            clock_speed=0.03,
+            clock_nudge=nudge,
+            nudge_on=True,
+            influence_radius=100,
+            speed=5,
+            leds_number=0,
+            leds_clock_speed=None,
+            led_influence_radius=None,
+            fps=30
+        )
+        for step in range(1000):
+            print(step)
+            res.append(
+                dict(
+                    nudge=nudge,
+                    step=step,
+                    average_shinning=swarm.shinning.mean()
+                )
+            )
+            swarm.next_step()
+    df = pd.DataFrame(res)
+    df.to_csv("result.csv")
+    df.pivot("step", "nudge", "average_shinning").plot()
+    plt.show()

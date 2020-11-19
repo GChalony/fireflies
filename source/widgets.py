@@ -49,12 +49,14 @@ class ControlPanel(tk.Frame):
     def __init__(self, master, controller):
         super().__init__(master, bg="black")
 
-        clock_speed = MyScale(self, from_=1, to=10, label="Clock speed",
+        clock_speed = MyScale(self, from_=0, to=0.1, resolution=0.001, label="Clock speed",
                               command=controller.handler("clock_speed"), variable=controller.clock_speed)
         number_flies = MyScale(self, from_=10, to=200, resolution=10, label="Number of flies",
                                command=controller.handler("number_flies"), variable=controller.number_flies)
         nudge_on = MyCheckButton(self, text="Activate nudging",
                                  command=controller.handler("nudge_on"), variable=controller.nudge_on)
+        nudge_delta = MyScale(self, from_=0, to=1, resolution=0.01, label="Nudge Delta",
+                              command=controller.handler("clock_nudge"), variable=controller.clock_nudge)
         influence_radius = MyScale(self, from_=0, to=100, label="Influence radius",
                                    command=controller.handler("influence_radius"), variable=controller.influence_radius)
         flies_speed = MyScale(self, from_=0, to=10, label="Speed of flies",
@@ -68,6 +70,7 @@ class ControlPanel(tk.Frame):
         clock_speed.pack(fill=tk.X, expand=True, padx=5)
         number_flies.pack(fill=tk.X, expand=True, padx=5)
         nudge_on.pack(fill=tk.X, expand=True, padx=5)
+        nudge_delta.pack(fill=tk.X, expand=True, padx=5)
         influence_radius.pack(fill=tk.X, expand=True, padx=5)
         flies_speed.pack(fill=tk.X, expand=True, padx=5)
         led_on.pack(fill=tk.X, expand=True, padx=5)

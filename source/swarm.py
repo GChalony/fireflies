@@ -3,7 +3,8 @@ import numpy as np
 
 class Swarm:
 
-    def __init__(self, height, width, number, clock_speed, clock_nudge, nudge_on, influence_radius, speed, leds_number=0,
+    def __init__(self, height, width, number, clock_speed,
+                 clock_nudge, nudge_on, influence_radius, speed, leds_number=0,
                  leds_clock_speed=None, led_influence_radius=None):
         self.height = height
         self.width = width
@@ -30,8 +31,8 @@ class Swarm:
     def next_step(self):
         self.update_position()
         self.update_direction()
-        self.update_clocks()
-        self.update_leds()
+        # self.update_clocks()
+        # self.update_leds()
 
     def update_position(self):
         self.X_positions = (self.X_positions + self.speed * np.cos(self.angle_direction)) % self.width
@@ -42,8 +43,8 @@ class Swarm:
 
     def update_clocks(self):
         if self.nudge_on :
-            is_shiny = (self.clocks > - self.clock_speed) & (self.clocks < self.clock_speed)
-            shining_indices, not_shiny_indices = np.where(is_shiny)
+            is_shiny = self.clocks < self.clock_speed
+            shiny_indices, not_shiny_indices = np.where(is_shiny)
 
             # Calculating shining fireflies neighbors
             dX = self.X_positions[is_shiny, np.newaxis] - self.X_positions[np.newaxis, ~is_shiny]

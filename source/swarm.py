@@ -20,7 +20,7 @@ class Swarm:
         self.Y_positions = np.full(number, height / 2)  #np.random.randint(low=0, high=height, size=number)
         self.angle_direction = 2 * np.pi * np.random.rand(number)
         self.clocks = np.random.random(number)
-        self.shining_time = 0.1
+        self.shinning_time = 0.1
 
         self.leds_number = leds_number
         self.leds_clock_speed = leds_clock_speed if leds_clock_speed else clock_speed
@@ -28,6 +28,7 @@ class Swarm:
         self.leds_X_positions = np.random.randint(low=0, high=width, size=leds_number)
         self.leds_Y_positions = np.random.randint(low=0, high=height, size=leds_number)
         self.leds_clocks = np.random.rand(leds_number)
+        self.shinning = np.random.randint(0,2,number)
         self.leds_on = np.array([1] * leds_number)
 
     def next_step(self):
@@ -48,7 +49,7 @@ class Swarm:
             is_shiny = self.shinning
             not_shiny_indices = np.where(~is_shiny)[0]
 
-            # Calculating shining fireflies neighbors
+            # Calculating shinning fireflies neighbors
             dX = self.X_positions[is_shiny, np.newaxis] - self.X_positions[np.newaxis, ~is_shiny]
             dY = self.Y_positions[is_shiny, np.newaxis] - self.Y_positions[np.newaxis, ~is_shiny]
             distances = dX ** 2 + dY ** 2
@@ -58,8 +59,8 @@ class Swarm:
 
             not_shiney_with_shiny_neighbors = not_shiny_indices[np.where(has_shiny_neighbors)[0]]
 
-            # Calculating shining leds neighbors
-            is_shiny_leds = (self.leds_clocks < self.fps * self.shining_time * self.leds_clock_speed) & (
+            # Calculating shinning leds neighbors
+            is_shiny_leds = (self.leds_clocks < self.fps * self.shinning_time * self.leds_clock_speed) & (
                     self.leds_on == 1)
 
             dX2 = self.leds_X_positions[is_shiny_leds, np.newaxis] - self.X_positions[np.newaxis, ~is_shiny]
@@ -75,17 +76,15 @@ class Swarm:
                 np.union1d(not_shiney_with_shiny_neighbors, not_shiney_with_shiny_led_neighbors),
                 np.where(self.clocks > 0.5)[0]
             )
-            print(fireflies_to_nudge)
             self.clocks[fireflies_to_nudge] = (self.clocks[fireflies_to_nudge] + self.clock_nudge) % 1
 
         self.clocks = self.clocks + self.clock_speed
         self.shinning = self.clocks > 1
         self.clocks[self.shinning] = 0
-        print(self.clocks)
 
     @property
-    def shinning(self):
-        return self.clocks < self.shining_time
+    def shines(self):
+        return self.clocks < self.shinning_time
 
 
     def update_leds(self):

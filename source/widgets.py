@@ -34,7 +34,7 @@ class MyCheckButton(tk.Checkbutton):
 
 
 class FireflyCanvas(tk.Canvas):
-    def __init__(self, master, swarm, w=4, h=4, **kwargs):
+    def __init__(self, master, swarm, w=10, h=10, **kwargs):
         tk.Canvas.__init__(self, master, **kwargs)
         self.w = w
         self.h = h
@@ -43,8 +43,8 @@ class FireflyCanvas(tk.Canvas):
 
     def draw(self, swarm):
         self.delete("all")
-        for x, y, clock in zip(swarm.X_positions, swarm.Y_positions, swarm.clocks):
-            color = "yellow" if clock < 0.1 else "red"
+        for x, y, shines in zip(swarm.X_positions, swarm.Y_positions, swarm.shinning):
+            color = "yellow" if shines else "gray"
             self.create_rectangle(x, y, x + self.w, y + self.h, fill=color)
 
 

@@ -3,7 +3,9 @@ import tkinter as tk
 from source.swarm import Swarm
 from source.widgets import ControledFrame
 
-swarm = Swarm(600, 1000, 100, 0.01, 0.01, True, 30, 2)
+swarm = Swarm(height=600, width=1000, number=100, clock_speed=0.01,
+                 clock_nudge = 0.1, nudge_on=True, influence_radius=30, speed=3, leds_number=0,
+                 leds_clock_speed=None, led_influence_radius=None, fps=30)
 
 
 root = tk.Tk()

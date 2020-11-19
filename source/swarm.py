@@ -78,7 +78,9 @@ class Swarm:
             print(fireflies_to_nudge)
             self.clocks[fireflies_to_nudge] = (self.clocks[fireflies_to_nudge] + self.clock_nudge) % 1
 
-        self.clocks = (self.clocks + self.clock_speed) % 1
+        self.clocks = self.clocks + self.clock_speed
+        self.shinning = self.clocks > 1
+        self.clocks[self.shinning] = 0
         print(self.clocks)
 
     @property

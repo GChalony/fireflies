@@ -16,7 +16,7 @@ class Swarm:
         self.clock_nudge = clock_nudge
         self.influence_radius = influence_radius
         self.speed = speed
-        self.X_positions = np.linspace(width/2, width / 2 + 100, number)  #np.random.randint(low=0, high=width, size=number)
+        self.X_positions = np.full(number, width/2)  #np.random.randint(low=0, high=width, size=number)
         self.Y_positions = np.full(number, height / 2)  #np.random.randint(low=0, high=height, size=number)
         self.angle_direction = 2 * np.pi * np.random.rand(number)
         self.clocks = np.random.random(number)
@@ -41,7 +41,7 @@ class Swarm:
         self.Y_positions = (self.Y_positions + self.speed * np.sin(self.angle_direction)) % self.height
 
     def update_direction(self):
-        self.angle_direction = (self.angle_direction + np.random.normal(0, 2 * np.pi / 15, self.number)) % (2 * np.pi)
+        self.angle_direction = (self.angle_direction + np.random.normal(0, 2 * np.pi / 30, self.number))
 
     def update_clocks(self):
         if self.nudge_on:
@@ -71,7 +71,10 @@ class Swarm:
             not_shiney_with_shiny_led_neighbors = not_shiny_indices[np.where(has_shiny_led_neighbors)[0]]
 
             # Nudging
-            fireflies_to_nudge = np.union1d(not_shiney_with_shiny_neighbors, not_shiney_with_shiny_led_neighbors)
+            fireflies_to_nudge = np.intersect1d(
+                np.union1d(not_shiney_with_shiny_neighbors, not_shiney_with_shiny_led_neighbors),
+                np.where(self.clocks > 0.5)[0]
+            )
             print(fireflies_to_nudge)
             self.clocks[fireflies_to_nudge] = (self.clocks[fireflies_to_nudge] + self.clock_nudge) % 1
 

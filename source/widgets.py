@@ -31,7 +31,7 @@ class MyCheckButton(tk.Checkbutton):
 
 
 class FireflyCanvas(tk.Canvas):
-    def __init__(self, master, swarm, w=10, h=10, **kwargs):
+    def __init__(self, master, swarm, w=4, h=4, **kwargs):
         super().__init__(master, **kwargs)
         self.w = w
         self.h = h
@@ -41,7 +41,8 @@ class FireflyCanvas(tk.Canvas):
     def draw(self, swarm):
         self.delete("all")
         for x, y, shines, clock in zip(swarm.X_positions, swarm.Y_positions, swarm.shinning, swarm.clocks):
-            color = '#%02x%02x%02x' % (200, shines * 1, int(clock * 200))
+            index = max(0, int((1 - 4 * clock) * 200)) + 50
+            color = '#%02x%02x%02x' % (index, index, 50)
             self.create_rectangle(x, y, x + self.w, y + self.h, fill=color)
 
 
@@ -57,7 +58,7 @@ class ControlPanel(tk.Frame):
                                  command=controller.handler("nudge_on"), variable=controller.nudge_on)
         nudge_delta = MyScale(self, from_=0, to=1, resolution=0.01, label="Nudge Delta",
                               command=controller.handler("clock_nudge"), variable=controller.clock_nudge)
-        influence_radius = MyScale(self, from_=0, to=100, label="Influence radius",
+        influence_radius = MyScale(self, from_=0, to=500, label="Influence radius",
                                    command=controller.handler("influence_radius"), variable=controller.influence_radius)
         flies_speed = MyScale(self, from_=0, to=10, label="Speed of flies",
                               command=controller.handler("flies_speed"), variable=controller.flies_speed)
@@ -101,10 +102,6 @@ class ControledFrame(tk.Frame):
         self.canvas.grid(column=1, row=0)
 
     def loop(self):
-        # update swarm then replot
-        # self.swarm.x = ((np.random.random(self.N) - .5 ) * 4 + self.swarm.x) % self.W
-        # self.swarm.y = ((np.random.random(self.N) - .5) * 4 + self.swarm.y) % self.H
-        # self.swarm.clock = (0.1 + self.swarm.clock) % 1
         self.swarm.next_step()
 
         self.canvas.draw(self.swarm)

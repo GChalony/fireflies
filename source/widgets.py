@@ -1,8 +1,5 @@
 import tkinter as tk
 
-import numpy as np
-import pandas as pd
-
 
 class MyLabel(tk.Label):
     DEFAULT_PARAMS = dict(fg="white")
@@ -19,7 +16,7 @@ class MyScale(tk.Scale):
 
     def __init__(self, master, **kwargs):
         kwargs = {**self.DEFAULT_PARAMS, **kwargs}
-        tk.Scale.__init__(self, master, **kwargs)
+        super().__init__(master, **kwargs)
 
 
 class MyCheckButton(tk.Checkbutton):
@@ -30,12 +27,12 @@ class MyCheckButton(tk.Checkbutton):
 
     def __init__(self, master, **kwargs):
         kwargs = {**self.DEFAULT_PARAMS, **kwargs}
-        tk.Checkbutton.__init__(self, master, **kwargs)
+        super().__init__(master, **kwargs)
 
 
 class FireflyCanvas(tk.Canvas):
-    def __init__(self, master, swarm, w=10, h=10, **kwargs):
-        tk.Canvas.__init__(self, master, **kwargs)
+    def __init__(self, master, swarm, w=4, h=4, **kwargs):
+        super().__init__(master, **kwargs)
         self.w = w
         self.h = h
 
@@ -49,16 +46,24 @@ class FireflyCanvas(tk.Canvas):
 
 
 class ControlPanel(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="black")
+    def __init__(self, master, controller):
+        super().__init__(master, bg="black")
 
-        clock_speed = MyScale(self, from_=1, to=10, label="Clock speed")
-        number_flies = MyScale(self, from_=10, to=200, resolution=10, label="Number of flies")
-        nudge_on = MyCheckButton(self, text="Activate nudging")
-        influence_radius = MyScale(self, from_=0, to=100, label="Influence radius")
-        flies_speed = MyScale(self, from_=0, to=10, label="Speed of flies")
-        led_on = MyCheckButton(self, text="LED ON")
-        led_clock_speed = MyScale(self, from_=0, to=10, label="LED clock speed")
+        clock_speed = MyScale(self, from_=1, to=10, label="Clock speed",
+                              command=controller.handler("clock_speed"), variable=controller.clock_speed)
+        number_flies = MyScale(self, from_=10, to=200, resolution=10, label="Number of flies",
+                               command=controller.handler("number_flies"), variable=controller.number_flies)
+        nudge_on = MyCheckButton(self, text="Activate nudging",
+                                 command=controller.handler("nudge_on"), variable=controller.nudge_on)
+        influence_radius = MyScale(self, from_=0, to=100, label="Influence radius",
+                                   command=controller.handler("influence_radius"), variable=controller.influence_radius)
+        flies_speed = MyScale(self, from_=0, to=10, label="Speed of flies",
+                              command=controller.handler("flies_speed"), variable=controller.flies_speed)
+        led_on = MyCheckButton(self, text="LED ON",
+                               command=controller.handler("led_on"), variable=controller.led_on)
+        led_clock_speed = MyScale(self, from_=0, to=10, label="LED clock speed",
+                                  command=controller.handler("led_clock_speed"), variable=controller.led_clock_speed)
+
 
         clock_speed.pack(fill=tk.X, expand=True, padx=5)
         number_flies.pack(fill=tk.X, expand=True, padx=5)
@@ -73,14 +78,14 @@ class ControledFrame(tk.Frame):
     """A TKinter frame with a canvas in the middle and a control panel on the left."""
     FPS = 30
 
-    def __init__(self, master, swarm, **kwargs):
-        tk.Frame.__init__(self, master, **kwargs)
+    def __init__(self, master, controller, swarm, **kwargs):
+        super().__init__(master, **kwargs)
 
         # TODO figure out size
         self.W = 1000
         self.H = 600
 
-        self.control = ControlPanel(self)
+        self.control = ControlPanel(self, controller)
 
         # Hackish part
         self.N = 50

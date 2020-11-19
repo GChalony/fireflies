@@ -27,15 +27,16 @@ class Swarm:
         self.leds_influence_radius = led_influence_radius if led_influence_radius else influence_radius
         self.leds_X_positions = np.random.randint(low=0, high=width, size=leds_number)
         self.leds_Y_positions = np.random.randint(low=0, high=height, size=leds_number)
-        self.leds_clocks = np.random.rand(leds_number)
-        self.shinning = np.random.randint(0,2,number)
-        self.leds_on = np.array([1] * leds_number)
+        self.leds_clocks = np.full(leds_number, np.random.random())  #np.random.rand(leds_number)
+        # self.leds_clocks = np.random.rand(leds_number)
+        self.shinning = np.random.randint(0, 2, number)
+        self.leds_on = np.full(leds_number, 1)
 
     def next_step(self):
         self.update_position()
         self.update_direction()
         self.update_clocks()
-        # self.update_leds()
+        self.update_leds()
 
     def update_position(self):
         self.X_positions = (self.X_positions + self.speed * np.cos(self.angle_direction)) % self.width
@@ -65,18 +66,24 @@ class Swarm:
 
             dX2 = self.leds_X_positions[is_shiny_leds, np.newaxis] - self.X_positions[np.newaxis, ~is_shiny]
             dY2 = self.leds_Y_positions[is_shiny_leds, np.newaxis] - self.Y_positions[np.newaxis, ~is_shiny]
-            distances2 = dX * dX + dY * dY
+            distances2 = dX2 ** 2 + dY2 ** 2
             shiny_led_neighbors = (distances2 < self.leds_influence_radius * self.leds_influence_radius)
             has_shiny_led_neighbors = shiny_led_neighbors.sum(axis=0) > 0
 
             not_shiney_with_shiny_led_neighbors = not_shiny_indices[np.where(has_shiny_led_neighbors)[0]]
 
             # Nudging
-            fireflies_to_nudge = np.intersect1d(
-                np.union1d(not_shiney_with_shiny_neighbors, not_shiney_with_shiny_led_neighbors),
+            fireflies_to_nudge = np.union1d(not_shiney_with_shiny_neighbors, not_shiney_with_shiny_led_neighbors)
+            fireflies_to_nudge_up = np.intersect1d(
+                fireflies_to_nudge,
                 np.where(self.clocks > 0.5)[0]
             )
-            self.clocks[fireflies_to_nudge] = (self.clocks[fireflies_to_nudge] + self.clock_nudge) % 1
+            self.clocks[fireflies_to_nudge_up] = (self.clocks[fireflies_to_nudge_up] + self.clock_nudge) % 1
+            fireflies_to_nudge_up = np.intersect1d(
+                fireflies_to_nudge,
+                np.where(self.clocks < 0.5)[0]
+            )
+            self.clocks[fireflies_to_nudge_up] = (self.clocks[fireflies_to_nudge_up] - self.clock_nudge) % 1
 
         self.clocks = self.clocks + self.clock_speed
         self.shinning = self.clocks > 1
@@ -86,9 +93,8 @@ class Swarm:
     def shines(self):
         return self.clocks < self.shinning_time
 
-
     def update_leds(self):
-        self.leds_clocks = (self.leds_clocks + self.leds_on * self.leds_clock_speed) % 1
+        self.leds_clocks = (self.leds_clocks + self.leds_on * self.leds_clock_speed * 0.98) % 1
 
 
 if __name__ == "__main__":
@@ -97,32 +103,31 @@ if __name__ == "__main__":
 
     res = []
 
-    for nudge in [0.001, 0.005, 0.01, 0.05, 0.1, 0.3, 0.5]:
-        swarm = Swarm(
-            height=600,
-            width=1000,
-            number=300,
-            clock_speed=0.03,
-            clock_nudge=nudge,
-            nudge_on=True,
-            influence_radius=100,
-            speed=5,
-            leds_number=0,
-            leds_clock_speed=None,
-            led_influence_radius=None,
-            fps=30
-        )
-        for step in range(1000):
-            print(step)
-            res.append(
-                dict(
-                    nudge=nudge,
-                    step=step,
-                    average_shinning=swarm.shinning.mean()
-                )
+    swarm = Swarm(
+        height=600,
+        width=1000,
+        number=300,
+        clock_speed=0.03,
+        clock_nudge=0.01,
+        nudge_on=True,
+        influence_radius=100,
+        speed=5,
+        leds_number=2,
+        leds_clock_speed=None,
+        led_influence_radius=None,
+        fps=30
+    )
+    for step in range(5000):
+        print(step)
+        res.append(
+            dict(
+                step=step,
+                average_shinning=swarm.shinning.mean(),
+                leds=(swarm.leds_clocks < 0.1).mean()
             )
-            swarm.next_step()
+        )
+        swarm.next_step()
     df = pd.DataFrame(res)
     df.to_csv("result.csv")
-    df.pivot("step", "nudge", "average_shinning").plot()
+    df.plot("step", ["average_shinning", "leds"])
     plt.show()

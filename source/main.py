@@ -7,13 +7,13 @@ from source.widgets import ControledFrame
 swarm = Swarm(
     height=600,
     width=1000,
-    number=300,
+    number=1000,
     clock_speed=0.03,
     clock_nudge=0.01,
     nudge_on=True,
     influence_radius=100,
     speed=5,
-    leds_number=0,
+    leds_number=2,
     leds_clock_speed=None,
     led_influence_radius=None,
     fps=30

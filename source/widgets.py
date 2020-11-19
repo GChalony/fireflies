@@ -40,9 +40,20 @@ class FireflyCanvas(tk.Canvas):
 
     def draw(self, swarm):
         self.delete("all")
-        for x, y, shines in zip(swarm.X_positions, swarm.Y_positions, swarm.shines):
-            color = "yellow" if shines else "#282828"
-            self.create_rectangle(x - self.w / 2, y - self.h /2, x + self.w / 2, y + self.h / 2 , fill=color, outline="black")
+        # Flies
+        for x, y, shines in zip(swarm.X_positions, swarm.Y_positions, swarm.clocks):
+            # color = "yellow" if shines else "#282828"
+            i = max(0, 1 - 3 * shines)
+            color = "#%02x%02x%02x" % (int(200 * i) + 20, int(100 * i) + 20, int(17 * i) + 20)
+            self.create_oval(x - self.w / 2, y - self.h /2, x + self.w / 2, y + self.h / 2,
+                                  fill=color, outline=color)
+
+        # LEDs
+        for x, y, clock in zip(swarm.leds_X_positions, swarm.leds_Y_positions, swarm.leds_clocks):
+            color = "red" if clock < 0.1 else "#202020"
+            self.create_rectangle(x - self.w / 2, y - self.h / 2, x + self.w / 2, y + self.h / 2,
+                                  fill=color, outline="black")
+
 
 
 

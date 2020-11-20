@@ -55,6 +55,12 @@ class FireflyCanvas(tk.Canvas):
             self.create_rectangle(x - self.w / 2, y - self.h / 2, x + self.w / 2, y + self.h / 2,
                                   fill=color, outline="black")
 
+    def resize(self, swarm):
+        width = self.winfo_reqwidth()
+        height = self.winfo_reqheight()
+        print("Canvas size: ", (width, height))
+        swarm.width = width
+        swarm.height = height
 
     def on_click(self, event):
         """Turn lights on for flies near mouse cursor"""
@@ -115,9 +121,8 @@ class ControledFrame(tk.Frame):
     def __init__(self, master, controller, swarm, **kwargs):
         super().__init__(master, bg='black', **kwargs)
 
-        # TODO figure out size
-        self.W = 1000
-        self.H = 600
+        self.W = swarm.width
+        self.H = swarm.height
 
         self.control = ControlPanel(self, controller)
         self.control.init_values(swarm)
@@ -127,10 +132,19 @@ class ControledFrame(tk.Frame):
         self.canvas = FireflyCanvas(self, swarm, background="black", width=self.W, height=self.H)
 
         self.control.grid(column=0, row=0, sticky='nesw')
-        self.canvas.grid(column=1, row=0)
+        self.canvas.grid(column=1, row=0, sticky='nesw')
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=3)
+        self.grid_rowconfigure(index=0, weight=1)
+
+        # Resize callback
+        self.bind("<Configure>", self.on_resize)
 
     def loop(self):
         self.swarm.next_step()
 
         self.canvas.draw()
         self.master.after(int(1000 / self.FPS), self.loop)
+
+    def on_resize(self, args):
+        self.canvas.resize(self.swarm)

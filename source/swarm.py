@@ -5,7 +5,7 @@ class Swarm:
 
     def __init__(self, height, width, number, clock_speed,
                  clock_nudge, nudge_on, influence_radius, speed, leds_number=0,
-                 leds_clock_speed=None, led_influence_radius=None, fps=30):
+                 leds_clock_speed=None, led_influence_radius=None, sync_leds=True, fps=30):
         self.height = height
         self.width = width
         self.fps = fps
@@ -27,8 +27,11 @@ class Swarm:
         self.leds_influence_radius = led_influence_radius if led_influence_radius else influence_radius
         self.leds_X_positions = np.random.randint(low=0, high=width, size=leds_number)
         self.leds_Y_positions = np.random.randint(low=0, high=height, size=leds_number)
-        self.leds_clocks = np.full(leds_number, np.random.random())  #np.random.rand(leds_number)
-        # self.leds_clocks = np.random.rand(leds_number)
+        self.sync_leds = sync_leds
+        if sync_leds:
+            self.leds_clocks = np.full(leds_number, np.random.random())  #np.random.rand(leds_number)
+        else:
+            self.leds_clocks = np.random.rand(leds_number)
         self.shinning = np.random.randint(0, 2, number)
         self.leds_on = np.full(leds_number, 1)
 
@@ -79,11 +82,11 @@ class Swarm:
                 np.where(self.clocks > 0.5)[0]
             )
             self.clocks[fireflies_to_nudge_up] = (self.clocks[fireflies_to_nudge_up] + self.clock_nudge) % 1
-            fireflies_to_nudge_up = np.intersect1d(
+            fireflies_to_nudge_down = np.intersect1d(
                 fireflies_to_nudge,
                 np.where(self.clocks < 0.5)[0]
             )
-            self.clocks[fireflies_to_nudge_up] = (self.clocks[fireflies_to_nudge_up] - self.clock_nudge) % 1
+            self.clocks[fireflies_to_nudge_down] = (self.clocks[fireflies_to_nudge_down] - self.clock_nudge) % 1
 
         self.clocks = self.clocks + self.clock_speed
         self.shinning = self.clocks > 1
@@ -95,6 +98,16 @@ class Swarm:
 
     def update_leds(self):
         self.leds_clocks = (self.leds_clocks + self.leds_on * self.leds_clock_speed * 0.98) % 1
+
+    def synchronize_leds(self):
+        if not self.sync_leds:
+            self.leds_clocks = np.full(self.leds_number, self.leds_clocks[0])
+            self.sync_leds = True
+
+    def desynchronize_leds(self):
+        if self.sync_leds:
+            self.leds_clocks = np.random.random(self.leds_number)
+            self.sync_leds = False
 
 
 if __name__ == "__main__":

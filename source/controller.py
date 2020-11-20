@@ -18,6 +18,7 @@ class Controller:
 
     def handle(self, event, *args):
         if event == "clock_speed":
+            # print("Changed clock speed", self.clock_speed.get())
             self.swarm.clock_speed = self.clock_speed.get()
         elif event == "number_flies":
             # self.swarm.change_number_flies(self.number_flies.get())
@@ -32,6 +33,11 @@ class Controller:
             self.swarm.speed = self.flies_speed.get()
         elif event == "led_on":
             self.swarm.leds_on = self.led_on.get()
+        elif event == "sync_leds":
+            if self.sync_leds.get():
+                self.swarm.synchronize_leds()
+            else:
+                self.swarm.desynchronize_leds()
         elif event == "led_clock_speed":
             self.swarm.leds_clock_speed = self.led_clock_speed.get()
 

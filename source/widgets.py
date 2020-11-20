@@ -35,6 +35,7 @@ class FireflyCanvas(tk.Canvas):
         super().__init__(master, **kwargs)
         self.w = w
         self.h = h
+        self.swarm = swarm
 
         self.draw(swarm)
 
@@ -114,5 +115,5 @@ class ControledFrame(tk.Frame):
     def loop(self):
         self.swarm.next_step()
 
-        self.canvas.draw(self.swarm)
+        self.canvas.draw()
         self.master.after(int(1000 / self.FPS), self.loop)

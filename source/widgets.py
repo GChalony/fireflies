@@ -39,18 +39,18 @@ class FireflyCanvas(tk.Canvas):
 
         self.bind("<Button-1>", self.on_click)
 
-    def draw(self, swarm):
+    def draw(self):
         self.delete("all")
         # Flies
-        for x, y, shines in zip(swarm.X_positions, swarm.Y_positions, swarm.clocks):
+        for x, y, shines in zip(self.swarm.X_positions, self.swarm.Y_positions, self.swarm.clocks):
             # color = "yellow" if shines else "#282828"
             i = max(0, 1 - 3 * shines)
             color = "#%02x%02x%02x" % (int(200 * i) + 20, int(100 * i) + 20, int(17 * i) + 20)
-            self.create_oval(x - self.w / 2, y - self.h /2, x + self.w / 2, y + self.h / 2,
-                                  fill=color, outline=color)
+            self.create_oval(x - self.w / 2, y - self.h / 2, x + self.w / 2, y + self.h / 2,
+                             fill=color, outline=color)
 
         # LEDs
-        for x, y, clock in zip(swarm.leds_X_positions, swarm.leds_Y_positions, swarm.leds_clocks):
+        for x, y, clock in zip(self.swarm.leds_X_positions, self.swarm.leds_Y_positions, self.swarm.leds_clocks):
             color = "red" if clock < 0.1 else "#202020"
             self.create_rectangle(x - self.w / 2, y - self.h / 2, x + self.w / 2, y + self.h / 2,
                                   fill=color, outline="black")
@@ -74,22 +74,26 @@ class ControlPanel(tk.Frame):
     def __init__(self, master, controller):
         super().__init__(master, bg="black")
 
-        clock_speed = MyScale(self, from_=0, to=0.1, resolution=0.001, label="Clock speed",
-                              command=controller.handler("clock_speed"), variable=controller.clock_speed)
-        number_flies = MyScale(self, from_=10, to=200, resolution=10, label="Number of flies",
-                               command=controller.handler("number_flies"), variable=controller.number_flies)
-        nudge_on = MyCheckButton(self, text="Activate nudging",
-                                 command=controller.handler("nudge_on"), variable=controller.nudge_on)
-        nudge_delta = MyScale(self, from_=0, to=1, resolution=0.01, label="Nudge Delta",
-                              command=controller.handler("clock_nudge"), variable=controller.clock_nudge)
-        influence_radius = MyScale(self, from_=0, to=500, label="Influence radius",
-                                   command=controller.handler("influence_radius"), variable=controller.influence_radius)
-        flies_speed = MyScale(self, from_=0, to=10, label="Speed of flies",
-                              command=controller.handler("flies_speed"), variable=controller.flies_speed)
-        led_on = MyCheckButton(self, text="LED ON",
-                               command=controller.handler("led_on"), variable=controller.led_on)
-        led_clock_speed = MyScale(self, from_=0, to=10, label="LED clock speed",
-                                  command=controller.handler("led_clock_speed"), variable=controller.led_clock_speed)
+        self.clock_speed = MyScale(self, from_=0, to=0.1, resolution=0.001, label="Clock speed",
+                                   command=controller.handler("clock_speed"), variable=controller.clock_speed)
+        self.number_flies = MyScale(self, from_=10, to=200, resolution=10, label="Number of flies",
+                                    command=controller.handler("number_flies"), variable=controller.number_flies)
+        self.nudge_on = MyCheckButton(self, text="Activate nudging",
+                                      command=controller.handler("nudge_on"), variable=controller.nudge_on)
+        self.nudge_delta = MyScale(self, from_=0, to=1, resolution=0.01, label="Nudge Delta",
+                                   command=controller.handler("clock_nudge"), variable=controller.clock_nudge)
+        self.influence_radius = MyScale(self, from_=0, to=500, label="Influence radius",
+                                        command=controller.handler("influence_radius"),
+                                        variable=controller.influence_radius)
+        self.flies_speed = MyScale(self, from_=0, to=10, label="Speed of flies",
+                                   command=controller.handler("flies_speed"), variable=controller.flies_speed)
+        self.led_on = MyCheckButton(self, text="LEDs ON",
+                                    command=controller.handler("led_on"), variable=controller.led_on)
+        self.sync_leds = MyCheckButton(self, text="Sync LEDs",
+                                       command=controller.handler("sync_leds"), variable=controller.sync_leds)
+        self.led_clock_speed = MyScale(self, from_=0, to=10, label="LED clock speed",
+                                       command=controller.handler("led_clock_speed"),
+                                       variable=controller.led_clock_speed)
 
         self.clock_speed.pack(fill=tk.X, expand=True, padx=5)
         self.number_flies.pack(fill=tk.X, expand=True, padx=5)

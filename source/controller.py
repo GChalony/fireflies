@@ -7,14 +7,15 @@ class Controller:
     def __init__(self, master, swarm: Swarm):
         self.swarm = swarm
 
-        self.clock_speed = tk.IntVar(master)
+        self.clock_speed = tk.DoubleVar(master)
         self.number_flies = tk.IntVar(master)
-        self.nudge_on = tk.IntVar(master)
+        self.nudge_on = tk.BooleanVar(master)
         self.influence_radius = tk.IntVar(master)
-        self.flies_speed = tk.IntVar(master)
-        self.led_on = tk.IntVar(master)
-        self.led_clock_speed = tk.IntVar(master)
-        self.clock_nudge = tk.IntVar(master)
+        self.flies_speed = tk.DoubleVar(master)
+        self.led_on = tk.BooleanVar(master)
+        self.sync_leds = tk.BooleanVar(master)
+        self.led_clock_speed = tk.DoubleVar(master)
+        self.clock_nudge = tk.DoubleVar(master)
 
     def handle(self, event, *args):
         if event == "clock_speed":
@@ -22,7 +23,7 @@ class Controller:
             self.swarm.clock_speed = self.clock_speed.get()
         elif event == "number_flies":
             # self.swarm.change_number_flies(self.number_flies.get())
-            raise NotImplementedError("Can't change number flies")
+            print("Can't change number flies")
         elif event == "nudge_on":
             self.swarm.nudge_on = self.nudge_on.get()
         elif event == "clock_nudge":

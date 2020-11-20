@@ -37,7 +37,7 @@ class FireflyCanvas(tk.Canvas):
         self.h = h
         self.swarm = swarm
 
-        self.draw(swarm)
+        self.bind("<Button-1>", self.on_click)
 
     def draw(self, swarm):
         self.delete("all")
@@ -56,6 +56,12 @@ class FireflyCanvas(tk.Canvas):
                                   fill=color, outline="black")
 
 
+    def on_click(self, event):
+        """Turn lights on for flies near mouse cursor"""
+        distances = (self.swarm.X_positions - event.x) ** 2 + (self.swarm.Y_positions - event.y) ** 2
+        selected_flies = distances < self.swarm.influence_radius ** 2
+        self.swarm.clocks[selected_flies] = 0
+        self.swarm.shinning[selected_flies] = True
 
 
 class ControlPanel(tk.Frame):
@@ -79,14 +85,27 @@ class ControlPanel(tk.Frame):
         led_clock_speed = MyScale(self, from_=0, to=10, label="LED clock speed",
                                   command=controller.handler("led_clock_speed"), variable=controller.led_clock_speed)
 
-        clock_speed.pack(fill=tk.X, expand=True, padx=5)
-        number_flies.pack(fill=tk.X, expand=True, padx=5)
-        nudge_on.pack(fill=tk.X, expand=True, padx=5)
-        nudge_delta.pack(fill=tk.X, expand=True, padx=5)
-        influence_radius.pack(fill=tk.X, expand=True, padx=5)
-        flies_speed.pack(fill=tk.X, expand=True, padx=5)
-        led_on.pack(fill=tk.X, expand=True, padx=5)
-        led_clock_speed.pack(fill=tk.X, expand=True, padx=5)
+        self.clock_speed.pack(fill=tk.X, expand=True, padx=5)
+        self.number_flies.pack(fill=tk.X, expand=True, padx=5)
+        self.nudge_on.pack(fill=tk.X, expand=True, padx=5)
+        self.nudge_delta.pack(fill=tk.X, expand=True, padx=5)
+        self.influence_radius.pack(fill=tk.X, expand=True, padx=5)
+        self.flies_speed.pack(fill=tk.X, expand=True, padx=5)
+        self.led_on.pack(fill=tk.X, expand=True, padx=5)
+        self.sync_leds.pack(fill=tk.X, expand=True, padx=5)
+        self.led_clock_speed.pack(fill=tk.X, expand=True, padx=5)
+
+    def init_values(self, swarm):
+        self.clock_speed.set(swarm.clock_speed)
+        self.number_flies.set(swarm.number)
+        self.number_flies.config(state=tk.DISABLED)
+        if swarm.nudge_on: self.nudge_on.select()
+        self.nudge_delta.set(swarm.clock_nudge)
+        self.influence_radius.set(swarm.influence_radius)
+        self.flies_speed.set(swarm.speed)
+        if swarm.leds_on.mean() > 0: self.led_on.select()
+        if swarm.sync_leds: self.sync_leds.select()
+        self.led_clock_speed.set(swarm.leds_clock_speed if swarm.leds_clock_speed is not None else swarm.clock_speed)
 
 
 class ControledFrame(tk.Frame):
@@ -94,20 +113,18 @@ class ControledFrame(tk.Frame):
     FPS = 30
 
     def __init__(self, master, controller, swarm, **kwargs):
-        super().__init__(master, **kwargs)
+        super().__init__(master, bg='black', **kwargs)
 
         # TODO figure out size
         self.W = 1000
         self.H = 600
 
         self.control = ControlPanel(self, controller)
+        self.control.init_values(swarm)
 
-        # Hackish part
-        self.N = 50
         self.swarm = swarm
 
-        self.canvas = FireflyCanvas(self, self.swarm,
-                                    background="black", width=1000, height=600)
+        self.canvas = FireflyCanvas(self, swarm, background="black", width=self.W, height=self.H)
 
         self.control.grid(column=0, row=0, sticky='nesw')
         self.canvas.grid(column=1, row=0)

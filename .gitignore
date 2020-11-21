@@ -8,3 +8,5 @@
 source/__pycache__/
 
 data/*
+!data/fireflies_app_demo.gif
+

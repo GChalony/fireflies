@@ -21,6 +21,8 @@ class Controller:
         if event == "clock_speed":
             # print("Changed clock speed", self.clock_speed.get())
             self.swarm.clock_speed = self.clock_speed.get()
+            self.swarm.leds_clock_speed = self.clock_speed.get()
+            
         elif event == "number_flies":
             # self.swarm.change_number_flies(self.number_flies.get())
             print("Can't change number flies")

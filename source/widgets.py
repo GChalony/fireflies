@@ -85,7 +85,7 @@ class ControlPanel(tk.Frame):
         self.influence_radius = MyScale(self, from_=0, to=500, label="Influence radius",
                                         command=controller.handler("influence_radius"),
                                         variable=controller.influence_radius)
-        self.flies_speed = MyScale(self, from_=0, to=10, label="Speed of flies",
+        self.flies_speed = MyScale(self, from_=0, to=5, resolution=0.25, label="Speed of flies",
                                    command=controller.handler("flies_speed"), variable=controller.flies_speed)
         self.led_on = MyCheckButton(self, text="LEDs ON",
                                     command=controller.handler("led_on"), variable=controller.led_on)

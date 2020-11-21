@@ -23,7 +23,7 @@ class Swarm:
         self.shinning_time = 0.1
 
         self.leds_number = leds_number
-        self.leds_clock_speed = leds_clock_speed if leds_clock_speed else clock_speed
+        self.leds_clock_speed = leds_clock_speed if leds_clock_speed is not None else clock_speed
         self.leds_influence_radius = led_influence_radius if led_influence_radius else influence_radius
         self.leds_X_positions = np.random.randint(low=0, high=width, size=leds_number)
         self.leds_Y_positions = np.random.randint(low=0, high=height, size=leds_number)
@@ -97,6 +97,7 @@ class Swarm:
         return self.clocks < self.shinning_time
 
     def update_leds(self):
+        # The 0.98 factor is an empirical value to fit the natural swarm frequency
         self.leds_clocks = (self.leds_clocks + self.leds_on * self.leds_clock_speed * 0.98) % 1
 
     def synchronize_leds(self):
